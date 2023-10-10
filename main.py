@@ -19,6 +19,7 @@ def wait():
     input('\r\nPress ENTER to continue\r\n')
     cls()
 cls()
+print(art.cover())
 print('*** Welcome to WitchRace! ***')
 print('You are a rabble-rousing upstart running for local office in medieval Iceland. Use guile, cunning, and black magic to outdo your opponents and become a big fish in a little frozen pond!')
 wait()
@@ -76,25 +77,29 @@ def leader():
         if scoreAppeal(a) > scoreAppeal(l):
             l = a
     return l
+def describeEffects(who):
+    msg = ''
+    for e in who.effects:
+        msg += '\nHe ' + e + '.'
+    return msg
 def describe(who):
     msg = who.name + ' is ' + healthAdj(who.health) + '.'
     msg += '\nAround here, he is ' + fameAdj(who.fame) + '.'
     msg += '\nWord is that ' + who.name + ' is also ' + wealthAdj(who.wealth) + '.'
-    for e in who.effects:
-        msg += '\nHe ' + e + '.'
+    msg += describeEffects(who)
     return msg
 def heify(msg):
-    msg = msg.replace('Your', 'His')
-    msg = msg.replace('your', 'his')
-    msg = msg.replace('You','He')
-    msg = msg.replace('you','he')
+    msg = msg.replace('Your ', 'His ')
+    msg = msg.replace(' your ', ' his ')
+    msg = msg.replace('You ','He ')
+    msg = msg.replace(' you ',' he ')
     return msg
 def youify(msg):
-    msg = msg.replace('His','Your')
-    msg = msg.replace('his','your')
-    msg = msg.replace('He','You')
-    msg = msg.replace('he','you')
-    msg = msg.replace('him','you')
+    msg = msg.replace('His ','Your ')
+    msg = msg.replace(' his ',' your ')
+    msg = msg.replace('He ','You ')
+    msg = msg.replace(' he ',' you ')
+    msg = msg.replace(' him ',' you ')
     return msg
 
 def turn():
@@ -102,13 +107,14 @@ def turn():
         while game.timeLeft > 0:
             def checkForEnd():
                 if me.health <= 0:
+                    print(art.death())
                     print(sep)
                     print('You are DEAD. Better luck next time!')
                     print(sep)
                     exit()
                 if len(opponents) < 1:
-                    print(
-                        'All your opponents have been eliminated. The people crown you as their new king in a ceremonial feast of the men who did not make it. Their bones are later fashioned into a comode that empties onto a mass grave containing their family and possessions, as is tradition.')
+                    print(art.king())
+                    print('All your opponents have been eliminated. The people crown you as their new king following a ceremonial feast of the men who did not make it. Their bones are later fashioned into a comode that empties onto a mass grave containing their family and possessions, as is tradition.')
                     print('Hooray for you!')
                     print('KING YOU')
                     print()
@@ -118,6 +124,7 @@ def turn():
             names = ''
             for o in opponents:
                 names += o.name + ', '
+            print(art.sunrise())
             print('\n\nIt is a new day! There are only ' + str(game.timeLeft) + ' days till the next run-off vote, when the candidate with the fewest votes gets eliminated! The candidates remaining: ' + names + 'and you.')
             print()
             print(sep)
@@ -126,8 +133,9 @@ def turn():
             me.wealth += slaveMoney
             print('Farmland worked by your slaves netted you ' + str(slaveMoney) + ' gold today. So you have ' + str(me.wealth) + ' gold in your pocket.')
             print('Word on the street is that you are ' + fameAdj(me.fame) + '. The front-runner appears to be ' + leader().name + ' today!')
-            for eff in me.effects:
-                print(describe(me))
+            effects = describeEffects(me)
+            if len(effects) > 0:
+                print(youify(effects))
             print(sep)
             choice = None
             while choice not in ['1','2','3','4','5']:
@@ -159,31 +167,37 @@ def turn():
 
             checkForEnd()
 
+            print(art.ai())
+            for o in opponents[0:]:
+                actions = [(eat, 'eat a slave'), (kiss, 'kiss some babies'), (raid, 'raid Flammerhammerborgensteinerdingerlinger'), (cast, 'cast a spell'), (buy, 'buy a slave')]
+                random.shuffle(actions)
+                print(sep)
+                print (o.name + ' decided to ' + actions[0][1] + ' today.')
+                print(actions[0][0](o)[1])
+            print(sep)
             for o in opponents[0:]:
                 if o.health < 1:
-                    print(o.name + ' could not take the heat and dropped out of the race!')
+                    print(o.name + ' was eliminated from the race!')
                     opponents.remove(o)
-                else:
-                    actions = [(eat, 'eat a slave'), (kiss, 'kiss some babies'), (raid, 'raid Flammerhammerborgensteinerdingerlinger'), (cast, 'cast a spell'), (buy, 'buy a slave')]
-                    random.shuffle(actions)
-                    print (o.name + ' decided to ' + actions[0][1] + ' today.')
-                    print(actions[0][0](o)[1])
-                    print(sep)
             wait()
             checkForEnd()
 
             game.timeLeft -= 1
 
         # runoff time!
+        print(art.village())
         print(sep + '\r\nElection day is here!\r\n' + sep)
-        print('The people eagerly gather in the square to exercise their collective voice, as determined by a small group of property-owning white men.')
-        print('As the sun drops below the horizon, the candidates wait nervously while the votes are tallied.')
+        print('The people eagerly gather in the square to exercise their collective voice, as determined by a small group of land-owning white men.')
+        print('As the sun drops below the horizon, the candidates nervously await the tallying of the votes.')
         wait()
+        print(art.soldier())
         print('And the loser is. . .')
         wait()
+        print(art.prisoner())
         print(loser().name + '!')
         if loser() == me:
-            cls()
+            print(art.king())
+            print()
             print('The people have spoken, and you have been eliminated in the run-off election!')
             print('Please sort your affairs and return to the great hall for division of your property and limbs.')
             print('GAME OVER')
@@ -200,6 +214,8 @@ def buy(who):
         return ['You wasted the whole day trying to haggle with a guy whose ears were full of tallow.', 'He did not have the funds to purchase even the weakest, sickliest, former yes-man in middle management. The day was a total bust.']
     who.wealth -= 2
     who.slaves += 1
+    if who == me:
+        print(art.market() + '\r\n')
     return ['You picked up a chubby grump who was exiled from his tribe for mixing Skittles and M&Ms.', 'He brought home a bewildered Dutchman who used to sell snake oil to the elderly.']
 
 def eat(who):
@@ -207,15 +223,20 @@ def eat(who):
         return ['The day was wasted as you searched the slave pen for someone to eat, then realized nobody was left.', 'He forgot that before one may eat a slave, one must first own a slave. What a goofball.']
     who.slaves -= 1
     who.health += 2
+    if who == me:
+        print(art.burger() + '\r\n')
     return ['You feel better after a good meal.', 'He looks a bit healthier now.']
 def kiss(who):
     who.fame += 1
     who.wealth += 1
+    if who == me:
+        print(art.baby() + '\r\n')
     return ['You drooled on an infant and everybody thinks you are a little cooler now. Somebody dropped a coin in your cup on your way home.', 'He slobbered on some stray kids and animals. Everyone agrees he is a nice enough guy but they decided to give him a gold to go home.']
 def cast(who):
     if who.wealth < 1:
         return ['You are too poor to afford the components for a spell.', 'He could not afford the ingredients, and returned home somewhat embarrassed.']
-    print(who.name + ' pays a gold to cast a spell!')
+    if who == me:
+        print(art.witch() + '\r\n')
     who.wealth -= 1
     opps = opponents + [me]
     # opps.remove(who) # let's try making yourself a potential target, that sounds fun  :D
@@ -238,7 +259,7 @@ def raid(who):
     who.wealth += 1
     who.slaves += 1
     who.health -= 2
-    if who.health < 0:
+    if who.health < 1:
         who.health = 0
         return ['The Hammerflammerwhatever people cut you into pieces, burn the pieces, piss on your ashes, and use them to stuff dummies for testing new sled designs.', 'The Hammerflammerdingerflingers put so many arrows into him that he bled to death standing on his boat. He is remembered in verse as The Porcupine Prince.']
     return ['You made it home with some money, a slave, and a couple fewer teeth.', 'He survived, with a slave and some gold. He will never stop bringing this up at parties.']

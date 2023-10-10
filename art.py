@@ -10,3 +10,27 @@ def read(filename):
 
 def barbarian():
     return read('barbarian.txt')
+def market():
+    return read('market.txt')
+def baby():
+    return read('baby.txt')
+def burger():
+    return read('burger.txt')
+def witch():
+    return read('witch.txt')
+def cover():
+    return read('cover.txt')
+def sunrise():
+    return read('sunrise.txt')
+def ai():
+    return read('ai.txt')
+def king():
+    return read('king.txt')
+def death():
+    return read('death.txt')
+def village():
+    return read('village.txt')
+def soldier():
+    return read('soldier.txt')
+def prisoner():
+    return read('prisoner.txt')
