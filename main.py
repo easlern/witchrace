@@ -71,11 +71,14 @@ def loser():
             l = a
     return l
 def leader():
-    all = opponents + [me]
     l = me
-    for a in all:
-        if scoreAppeal(a) > scoreAppeal(l):
+    best = scoreAppeal(me)
+    for a in opponents:
+        if scoreAppeal(a) > best:
+            best = scoreAppeal(a)
             l = a
+        if scoreAppeal(a) + 1 >= best:
+            l = None
     return l
 def describeEffects(who):
     msg = ''
@@ -132,7 +135,11 @@ def turn():
             slaveMoney = random.choice(range(me.slaves + 1))
             me.wealth += slaveMoney
             print('Farmland worked by your slaves netted you ' + str(slaveMoney) + ' gold today. So you have ' + str(me.wealth) + ' gold in your pocket.')
-            print('Word on the street is that you are ' + fameAdj(me.fame) + '. The front-runner appears to be ' + leader().name + ' today!')
+            print('Word on the street is that you are ' + fameAdj(me.fame) + '.')
+            if leader() is not None:
+                print('The front-runner appears to be ' + leader().name + ' today!')
+            else:
+                print('There is no clear leader in the race today!')
             effects = describeEffects(me)
             if len(effects) > 0:
                 print(youify(effects))
@@ -177,7 +184,7 @@ def turn():
             print(sep)
             for o in opponents[0:]:
                 if o.health < 1:
-                    print(o.name + ' was eliminated from the race!')
+                    print(o.name + ' did not survive! Dead men are forbidden from running for office, so he is removed from the upcoming ballot.')
                     opponents.remove(o)
             wait()
             checkForEnd()
@@ -234,7 +241,7 @@ def kiss(who):
     return ['You drooled on an infant and everybody thinks you are a little cooler now. Somebody dropped a coin in your cup on your way home.', 'He slobbered on some stray kids and animals. Everyone agrees he is a nice enough guy but they decided to give him a gold to go home.']
 def cast(who):
     if who.wealth < 1:
-        return ['You are too poor to afford the components for a spell.', 'He could not afford the ingredients, and returned home somewhat embarrassed.']
+        return ['You are too poor to afford the components for a spell.', 'He could not afford the ingredients, and returned home slightly embarrassed.']
     if who == me:
         print(art.witch() + '\r\n')
     who.wealth -= 1
